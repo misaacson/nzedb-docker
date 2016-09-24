@@ -1,0 +1,40 @@
+version: '2'
+services:
+  nzedb:
+    build: .
+    network_mode: bridge
+    ports:
+      - 8080:80
+    volumes:
+      - nzedb_data:/var/www/nzedb
+      - /dev/pts:/dev/pts
+    environment:
+      - TERM
+      - TIMEZONE=Asia/Seoul
+    links:
+      - memcached
+      - mysql
+  memcached:
+    image: memcached:alpine
+    network_mode: bridge
+    expose:
+      - 11211
+  mysql:
+    image: percona:5.7
+    network_mode: bridge
+    expose:
+      - 3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=nzedb
+      - MYSQL_USER=nzedb
+      - MYSQL_PASSWORD=nzedb
+volumes:
+  nzedb_data: {}
+  mysql_data: {}
+networks:
+  default:
+    external:
+      name: bridge
